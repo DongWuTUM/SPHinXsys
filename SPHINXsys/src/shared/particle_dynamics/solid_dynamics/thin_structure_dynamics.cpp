@@ -247,8 +247,10 @@ namespace SPH
 						pseudo_n_[index_j] - n0_[index_j],
 						transformation_matrix_[index_j].transpose() * F_bending_[index_j] * transformation_matrix_[index_j]);
 					Vecd rotation_jump = getRotationJump(pseudo_n_jump, transformation_matrix_[index_i]);
-					pseudo_normal_acceleration += hourglass_control_factor_ / 3.0 * weight * Dimensions * r_ij * G0_ * rotation_jump * 
-												  inner_neighborhood.dW_ijV_j_[n] * thickness_[index_i];
+					//pseudo_normal_acceleration += hourglass_control_factor_ * weight * Dimensions * r_ij * G0_ * rotation_jump *
+					//							  inner_neighborhood.dW_ijV_j_[n] * thickness_[index_i];
+					pseudo_normal_acceleration += hourglass_control_factor_ * weight * dim_inv_r_ij * G0_ * rotation_jump *
+						inner_neighborhood.dW_ijV_j_[n] * powerN(thickness_[index_i], 3);
 				}
 
 				acceleration += (global_stress_i + global_stress_[index_j]) * inner_neighborhood.dW_ijV_j_[n] * inner_neighborhood.e_ij_[n];
