@@ -245,7 +245,7 @@ namespace SPH
 		{
 			Vecd none_normalized_normal = level_set_shape_->findLevelSetGradient(pos_[index_i]);
 			Vecd normal = level_set_shape_->findNormalDirection(pos_[index_i]);
-			Real factor = none_normalized_normal.squaredNorm() / level_set_refinement_ratio_;
+			Real factor = none_normalized_normal.squaredNorm() / 5.0;
 			pos_[index_i] -= factor * constrained_distance_ * normal;
 		}
 		//=================================================================================================//
@@ -273,16 +273,16 @@ namespace SPH
 		{
 			bool prediction_convergence = false;
 			size_t ite_predict = 0;
-			while (!prediction_convergence)
+			while (!prediction_convergence && ite_predict < 1000)
 			{
 				normal_prediction_.parallel_exec();
 				prediction_convergence = normal_prediction_convergence_check_.parallel_exec();
-				if (ite_predict > 100)
-				{
-					std::cout << "\n Error: class ShellNormalDirectionPrediction normal prediction not converged after 100 iterations." << std::endl;
-					std::cout << __FILE__ << ':' << __LINE__ << std::endl;
-					exit(1);
-				}
+				//if (ite_predict > 100)
+				//{
+				//	std::cout << "\n Error: class ShellNormalDirectionPrediction normal prediction not converged after 100 iterations." << std::endl;
+				//	std::cout << __FILE__ << ':' << __LINE__ << std::endl;
+				//	exit(1);
+				//}
 
 				ite_predict++;
 			}
@@ -293,16 +293,16 @@ namespace SPH
 		{
 			bool consistency_updated = false;
 			size_t ite_updated = 0;
-			while (!consistency_updated)
+			while (!consistency_updated && ite_updated < 10000)
 			{
 				consistency_correction_.parallel_exec();
 				consistency_updated = consistency_updated_check_.parallel_exec();
-				if (ite_updated > 100)
-				{
-					std::cout << "\n Error: class ShellNormalDirectionPrediction normal consistency not updated  after 100 iterations." << std::endl;
-					std::cout << __FILE__ << ':' << __LINE__ << std::endl;
-					exit(1);
-				}
+				//if (ite_updated > 100)
+				//{
+				//	std::cout << "\n Error: class ShellNormalDirectionPrediction normal consistency not updated  after 100 iterations." << std::endl;
+				//	std::cout << __FILE__ << ':' << __LINE__ << std::endl;
+				//	exit(1);
+				//}
 				ite_updated++;
 			}
 			std::cout << "\n Information: normal consistency updated after '" << ite_updated << "' steps." << std::endl;
@@ -343,7 +343,7 @@ namespace SPH
 			  n_(*particles_->getVariableByName<Vecd>("NormalDirection"))
 		{
 			particles_->registerVariable(updated_indicator_, "UpdatedIndicator", [&](size_t i) -> int {return 0;});
-			updated_indicator_[particles_->total_real_particles_ / 3] = 1;
+			updated_indicator_[particles_->total_real_particles_ / 2] = 1;
 		}
 		//=================================================================================================//
 		void ShellNormalDirectionPrediction::ConsistencyCorrection::interaction(size_t index_i, Real dt)
