@@ -17,7 +17,7 @@ Real PL = 10.0;									  /** Length of the square plate. */
 Real PH = 10.0;									  /** Width of the square plate. */
 Real PT = 1.0;									  /** Thickness of the square plate. */
 Vec3d n_0 = Vec3d(0.0, 0.0, 1.0);				  /** Pseudo-normal. */
-int particle_number = 40;						  /** Particle number in the direction of the length */
+int particle_number = 10;						  /** Particle number in the direction of the length */
 Real resolution_ref = PL / (Real)particle_number; /** Initial reference particle spacing. */
 int BWD = 1;									  /** Width of the boundary layer measured by number of particles. */
 Real BW = resolution_ref * (Real)BWD;			  /** Boundary width, determined by specific layer of boundary particles. */
@@ -33,7 +33,7 @@ Real Youngs_modulus = 1.3024653e6; /** Normalized Youngs Modulus. */
 Real poisson = 0.3;				   /** Poisson ratio. */
 Real physical_viscosity = 200.0;   /** physical damping, here we choose the same value as numerical viscosity. */
 
-Real q = 1200.0 * Youngs_modulus * 1.0e-4; /** Total distributed load. */
+Real q = 100.0 * Youngs_modulus * 1.0e-4; /** Total distributed load. */
 Real time_to_full_external_force = 0.1;
 
 Real gravitational_acceleration = 0.009646;
@@ -60,8 +60,8 @@ public:
 		{
 			for (int j = 0; j < (particle_number + 2 * BWD); j++)
 			{
-				Real x = resolution_ref * i - BW + resolution_ref * 0.5;
-				Real y = resolution_ref * j - BW + resolution_ref * 0.5;
+				Real x = resolution_ref * i - BW + resolution_ref * 0.5 - 0.5 * PL;
+				Real y = resolution_ref * j - BW + resolution_ref * 0.5 - 0.5 * PH;
 				initializePositionAndVolumetricMeasure(Vecd(x, y, 0.0), resolution_ref * resolution_ref);
 				initializeSurfaceProperties(n_0, PT);
 			}
@@ -83,10 +83,10 @@ public:
 private:
 	void tagManually(size_t index_i)
 	{
-		if (base_particles_.pos_[index_i][1] < 0.0 || base_particles_.pos_[index_i][1] > PH)
-		{
+		//if (base_particles_.pos_[index_i][1] < 0.0 || base_particles_.pos_[index_i][1] > PH)
+		//{
 			body_part_particles_.push_back(index_i);
-		}
+		//}
 	};
 };
 class BoundaryGeometryParallelToYAxis : public BodyPartByParticle
@@ -125,6 +125,34 @@ public:
 				   : global_acceleration_;
 	}
 };
+
+/** Define the controled rotation. */
+class ControlRotation : public thin_structure_dynamics::ConstrainShellBodyRegion
+{
+public:
+	ControlRotation(BodyPartByParticle& body_part)
+		: ConstrainShellBodyRegion(body_part),
+		vel_(particles_->vel_), angular_vel_(particles_->angular_vel_), pos_(particles_->pos_) {};
+	virtual ~ControlRotation() {};
+
+protected:
+	StdLargeVec<Vecd>& vel_, & angular_vel_, & pos_;
+	Real ratation_v = Pi;
+	void update(size_t index_i, Real dt = 0.0)
+	{
+		Real current_time = GlobalStaticVariables::physical_time_;
+		if (current_time <= 0.5)
+		{
+			vel_[index_i] = Vecd(0.0, -ratation_v * pos_[index_i][2], ratation_v * pos_[index_i][1]);
+			angular_vel_[index_i] = Vecd(ratation_v, 0.0, 0.0);
+		}
+		else
+		{
+			vel_[index_i] = Vecd(ratation_v * pos_[index_i][2], 0.0, -ratation_v * pos_[index_i][0]);
+			angular_vel_[index_i] = Vecd(0.0, ratation_v, 0.0);
+		}
+	};
+};
 /**
  *  The main program
  */
@@ -137,6 +165,17 @@ int main(int ac, char *av[])
 	SolidBody plate_body(system, makeShared<DefaultShape>("PlateBody"));
 	plate_body.defineParticlesAndMaterial<ShellParticles, SaintVenantKirchhoffSolid>(rho0_s, Youngs_modulus, poisson);
 	plate_body.generateParticles<PlateParticleGenerator>();
+	plate_body.addBodyStateForRecording<Vecd>("PseudoNormal");
+	plate_body.addBodyStateForRecording<Vecd>("Acceleration");
+	plate_body.addBodyStateForRecording<Vecd>("AngularAcceleration");
+	plate_body.addBodyStateForRecording<Vecd>("AngularVelocity");
+	plate_body.addBodyStateForRecording<Matd>("DeformationGradient");
+	plate_body.addBodyStateForRecording<Matd>("BendingDeformationGradient");
+	plate_body.addBodyStateForRecording<Matd>("DeformationRate");
+	plate_body.addBodyStateForRecording<Matd>("BendingDeformationGradientChangeRate");
+	plate_body.addBodyStateForRecording<Matd>("GlobalStress");
+	plate_body.addBodyStateForRecording<Matd>("GlobalMoment");
+	plate_body.addBodyStateForRecording<Vecd>("GlobalShearStress");
 
 	/** Define Observer. */
 	ObserverBody plate_observer(system, "PlateObserver");
@@ -169,13 +208,9 @@ int main(int ac, char *av[])
 		stress_relaxation_second_half(plate_body_inner);
 	/** Constrain the Boundary. */
 	BoundaryGeometryParallelToXAxis boundary_geometry_x(plate_body, "BoundaryGeometryParallelToXAxis");
-	//SimpleDynamics<thin_structure_dynamics::ConstrainShellBodyRegionAlongAxis>
-	//	constrain_holder_x(boundary_geometry_x, 0);	
-	SimpleDynamics<solid_dynamics::FixBodyPartConstraint> constrain_holder_x(boundary_geometry_x);
+	SimpleDynamics<ControlRotation> constrain_holder_x(boundary_geometry_x);
 	BoundaryGeometryParallelToYAxis boundary_geometry_y(plate_body, "BoundaryGeometryParallelToYAxis");
-	//SimpleDynamics<thin_structure_dynamics::ConstrainShellBodyRegionAlongAxis>
-	//	constrain_holder_y(boundary_geometry_y, 1);	
-	SimpleDynamics<solid_dynamics::FixBodyPartConstraint> constrain_holder_y(boundary_geometry_y);
+	SimpleDynamics<thin_structure_dynamics::ConstrainShellBodyRegionAlongAxis> constrain_holder_y(boundary_geometry_y, 1);
 	DampingWithRandomChoice<InteractionSplit<DampingPairwiseInner<Vec3d>>>
 		plate_position_damping(0.5, plate_body_inner, "Velocity", physical_viscosity);
 	DampingWithRandomChoice<InteractionSplit<DampingPairwiseInner<Vec3d>>>
@@ -189,6 +224,7 @@ int main(int ac, char *av[])
 	system.initializeSystemCellLinkedLists();
 	system.initializeSystemConfigurations();
 	corrected_configuration.exec();
+	constrain_holder_x.exec();
 
 	/**
 	 * From here the time stepping begins.
@@ -201,8 +237,8 @@ int main(int ac, char *av[])
 
 	/** Setup physical parameters. */
 	int ite = 0;
-	Real end_time = 0.8;
-	Real output_period = end_time / 100.0;
+	Real end_time = 2.5;
+	Real output_period = end_time / 2500.0;
 	Real dt = 0.0;
 	/** Statistics for computing time. */
 	TickCount t1 = TickCount::now();
@@ -221,18 +257,23 @@ int main(int ac, char *av[])
 						  << GlobalStaticVariables::physical_time_ << "	dt: "
 						  << dt << "\n";
 			}
-			initialize_external_force.exec(dt);
+			//initialize_external_force.exec(dt);
 			stress_relaxation_first_half.exec(dt);
-			constrain_holder_x.exec(dt);
-			constrain_holder_y.exec(dt);
-			plate_position_damping.exec(dt);
-			plate_rotation_damping.exec(dt);
-			constrain_holder_x.exec(dt);
-			constrain_holder_y.exec(dt);
+			//constrain_holder_x.exec(dt);
+			//constrain_holder_y.exec(dt);
+			//plate_position_damping.exec(dt);
+			//plate_rotation_damping.exec(dt);
+			//constrain_holder_x.exec(dt);
+			//constrain_holder_y.exec(dt);
+			//if (GlobalStaticVariables::physical_time_ > 0.5 && GlobalStaticVariables::physical_time_ < 0.51)
+			//{
+			//	constrain_holder_x.exec();
+			//}
 			stress_relaxation_second_half.exec(dt);
 
 			ite++;
-			dt = computing_time_step_size.exec();
+			//dt = computing_time_step_size.exec();
+			dt = 1.0e-4;
 			integral_time += dt;
 			GlobalStaticVariables::physical_time_ += dt;
 		}

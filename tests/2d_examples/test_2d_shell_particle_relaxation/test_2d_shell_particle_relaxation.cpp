@@ -9,11 +9,11 @@ using namespace SPH;
 /**
  * @brief Basic geometry parameters.
  */
-Real radius = 24.5;									/** Inner radius of a 2D thin pipe. */
+Real radius = 10.0;									/** Inner radius of a 2D thin pipe. */
 Real thickness = 1.0;								/** Thickness of the pipe. */
 Real radius_mid_surface = radius + thickness / 2.0; /** Radius of the mid circle. */
 Real resolution_ref = 0.5;							// Global reference resolution
-Real level_set_refinement_ratio = resolution_ref / (0.1 * thickness);
+Real level_set_refinement_ratio = resolution_ref / (0.06 * thickness);
 Vec2d pipe_center(0.0, 0.0); /** Location of the pipe center. */
 /** Domain bounds of the system. */
 BoundingBox system_domain_bounds(Vec2d(-radius - thickness, -radius - thickness),
@@ -26,8 +26,12 @@ class Pipe : public MultiPolygonShape
 public:
 	explicit Pipe(const std::string &shape_name) : MultiPolygonShape(shape_name)
 	{
-		multi_polygon_.addACircle(pipe_center, radius + thickness, 100, ShapeBooleanOps::add);
-		multi_polygon_.addACircle(pipe_center, radius, 100, ShapeBooleanOps::sub);
+		//multi_polygon_.addACircle(pipe_center, radius + thickness, 100, ShapeBooleanOps::add);
+		//multi_polygon_.addACircle(pipe_center, radius, 100, ShapeBooleanOps::sub);
+		std::vector<Vecd> beam_shape{
+	Vecd(-radius / 2, -thickness / 2), Vecd(-radius / 2, thickness / 2), Vecd(radius / 2, thickness / 2),
+	Vecd(radius / 2, -thickness / 2), Vecd(-radius / 2, -thickness / 2) };
+		multi_polygon_.addAPolygon(beam_shape, ShapeBooleanOps::add);
 	}
 };
 //--------------------------------------------------------------------------
@@ -77,7 +81,7 @@ int main()
 
 	/** relax particles of the insert body. */
 	int ite_p = 0;
-	while (ite_p < 2000)
+	while (ite_p < 10000)
 	{
 		if (ite_p % 100 == 0)
 		{

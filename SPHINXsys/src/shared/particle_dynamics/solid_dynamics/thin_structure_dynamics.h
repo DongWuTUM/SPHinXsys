@@ -170,6 +170,8 @@ namespace SPH
 				&angular_vel_, &dangular_vel_dt_;
 			StdLargeVec<Matd> &B_, &F_, &dF_dt_, &F_bending_, &dF_bending_dt_;
 			StdLargeVec<Matd> &transformation_matrix_;
+			StdLargeVec<Vecd>& rodrigues_rotation_vector_;
+			StdLargeVec<Real>& rodrigues_rotation_angle_;
 		};
 
 		/**
@@ -304,7 +306,7 @@ namespace SPH
 			void update(size_t index_i, Real dt = 0.0);
 
 		protected:
-			StdLargeVec<Vecd> &vel_, &angular_vel_;
+			StdLargeVec<Vecd> &vel_, & dpseudo_n_dt_, & angular_vel_;
 		};
 
 		/**@class ConstrainShellBodyRegionAlongAxis
@@ -324,6 +326,7 @@ namespace SPH
 			StdLargeVec<Vecd> &pos_, &pos0_;
 			StdLargeVec<Vecd> &vel_, &acc_;
 			StdLargeVec<Vecd> &rotation_, &angular_vel_, &dangular_vel_dt_;
+			StdLargeVec<Vecd> & pseudo_n_, & dpseudo_n_dt_, & dpseudo_n_d2t_;
 		};
 
 		/**

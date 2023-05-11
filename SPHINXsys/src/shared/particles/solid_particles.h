@@ -179,6 +179,11 @@ namespace SPH
 		StdLargeVec<Vecd> global_shear_stress_; /**< global shear stress */
 		StdLargeVec<Matd> global_stress_;		/**<  global stress for pair interaction */
 		StdLargeVec<Matd> global_moment_;		/**<  global bending moment for pair interaction */
+		/**
+		 *	extra parameters for Rodrigues rotation
+		 */
+		StdLargeVec<Real> rodrigues_rotation_angle_;
+		StdLargeVec<Vecd> rodrigues_rotation_vector_;
 		/** get particle volume. */
 		virtual Real ParticleVolume(size_t index_i) override { return Vol_[index_i] * thickness_[index_i]; }
 		/** get particle mass. */

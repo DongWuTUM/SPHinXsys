@@ -318,6 +318,11 @@ namespace SPH
 		addDerivedVariableToWrite<VonMisesStrain>();
 		addVariableToRestart<Matd>("DeformationGradient");
 		addVariableToWrite<Vecd>("Rotation");
+
+		registerVariable(rodrigues_rotation_angle_, "rodrigues_rotation_angle",
+			[&](size_t i) -> Real
+			{ return 1.0; });
+		registerVariable(rodrigues_rotation_vector_, "rodrigues_rotation_vector");
 		/** 
 		 * initialize transformation matrix
 		 */
