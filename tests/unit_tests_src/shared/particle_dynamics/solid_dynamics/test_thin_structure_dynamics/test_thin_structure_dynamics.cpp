@@ -1,7 +1,7 @@
 /**
  * @file 	test_thin_structure_dynamics.cpp
  * @brief 	Shell model validation
- * @details A rigid rotation of a 3D plate is simulated and tested by GTest to validate the shell model. 
+ * @details A rigid rotation of a 3D plate is simulated and tested by GTest to validate the shell model.
  * @author 	Dong Wu and Xiangyu Hu
  */
 
@@ -61,8 +61,8 @@ public:
 		{
 			for (int j = 0; j < (particle_number + 2 * BWD); j++)
 			{
-				Real x = resolution_ref * i - BW + resolution_ref * 0.5;
-				Real y = resolution_ref * j - BW + resolution_ref * 0.5;
+				Real x = resolution_ref * i - BW + resolution_ref * 0.5 - PL * 0.5;
+				Real y = resolution_ref * j - BW + resolution_ref * 0.5 - PH * 0.5;
 				initializePositionAndVolumetricMeasure(Vecd(x, y, 0.0), resolution_ref * resolution_ref);
 				initializeSurfaceProperties(n_0, PT);
 			}
@@ -109,7 +109,7 @@ protected:
 		}
 		else
 		{
-			vel_[index_i] = Vecd(ratation_v * pos_[index_i][2], 0.0, -ratation_v * pos_[index_i][0]);
+			vel_[index_i] = Vecd(-ratation_v * pos_[index_i][1], ratation_v * pos_[index_i][0], 0.0);
 			angular_vel_[index_i] = Vecd(0.0, ratation_v, 0.0);
 		}
 	};
@@ -191,6 +191,10 @@ int main(int ac, char* av[])
 					<< dt << "\n";
 			}
 			stress_relaxation_first_half.exec(dt);
+			if (GlobalStaticVariables::physical_time_ > 0.5 && GlobalStaticVariables::physical_time_ < 0.51)
+			{
+				controled_rotaton.exec();
+			}
 			stress_relaxation_second_half.exec(dt);
 
 			ite++;
@@ -211,7 +215,7 @@ int main(int ac, char* av[])
 
 	for (int i = 0; i < 10; i++)
 	{
-		rondom_index.push_back((double)rand() / (RAND_MAX) * shell_particles->total_real_particles_);
+		rondom_index.push_back((double)rand() / (RAND_MAX)*shell_particles->total_real_particles_);
 		von_mises_strain.push_back(shell_particles->getVonMisesStrain(rondom_index[i]));
 	}
 	pseudo_normal = shell_particles->pseudo_n_;
