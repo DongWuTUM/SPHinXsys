@@ -36,7 +36,7 @@ StdLargeVec<Vecd> normal;
 StdVec<Real> von_mises_strain;
 TEST(Plate, RigidRotationTest)
 {
-	for (int i = 0; i < rondom_index.size(); i++)
+	for (size_t i = 0; i < rondom_index.size(); i++)
 	{
 		EXPECT_NEAR(pseudo_normal[rondom_index[i]][0], normal[rondom_index[i]][0], 1.0e-3);
 		EXPECT_NEAR(pseudo_normal[rondom_index[i]][1], normal[rondom_index[i]][1], 1.0e-3);
