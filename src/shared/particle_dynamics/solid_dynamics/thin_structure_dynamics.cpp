@@ -101,7 +101,8 @@ namespace SPH
 				gaussian_weight_ = three_gaussian_weights_;
 			}
 			/** Define the factor of hourglass control algorithm. */
-			hourglass_control_factor_ = 0.005;
+			hourglass_control_factor_pos_ = 0.001;
+			hourglass_control_factor_rotation_ = 0.001;
 		}
 		//=================================================================================================//
 		void ShellStressRelaxationFirstHalf::initialization(size_t index_i, Real dt)

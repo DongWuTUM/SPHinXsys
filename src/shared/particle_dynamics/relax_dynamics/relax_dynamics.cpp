@@ -39,11 +39,12 @@ namespace SPH
 		UpdateParticlePosition::UpdateParticlePosition(SPHBody &sph_body)
 			: LocalDynamics(sph_body), RelaxDataDelegateSimple(sph_body),
 			  sph_adaptation_(sph_body.sph_adaptation_),
-			  pos_(particles_->pos_), acc_(particles_->acc_) {}
+			  pos_(particles_->pos_), acc_(particles_->acc_), vel_(particles_->vel_) {}
 		//=================================================================================================//
 		void UpdateParticlePosition::update(size_t index_i, Real dt_square)
 		{
 			pos_[index_i] += acc_[index_i] * dt_square * 0.5 / sph_adaptation_->SmoothingLengthRatio(index_i);
+			vel_[index_i] += acc_[index_i] * sqrt(dt_square) / sph_adaptation_->SmoothingLengthRatio(index_i);
 		}
 		//=================================================================================================//
 		UpdateSmoothingLengthRatioByShape::
@@ -193,22 +194,33 @@ namespace SPH
 			correctNormalDirection();
 			predictNormalDirection();
 			smoothing_normal_.exec();
+
+			//predictNormalDirection();
+			//correctNormalDirection();
+			//predictNormalDirection();
+			//smoothing_normal_.exec();
+
+			//predictNormalDirection();
+			//correctNormalDirection();
+			//predictNormalDirection();
+			//smoothing_normal_.exec();
 		}
 		//=================================================================================================//
 		void ShellNormalDirectionPrediction::predictNormalDirection()
 		{
 			bool prediction_convergence = false;
 			size_t ite_predict = 0;
-			while (!prediction_convergence)
+			//while (!prediction_convergence)
+			while (ite_predict < 1000)
 			{
 				normal_prediction_.exec();
 				prediction_convergence = normal_prediction_convergence_check_.exec();
-				if (ite_predict > 100)
-				{
-					std::cout << "\n Error: class ShellNormalDirectionPrediction normal prediction not converged after 100 iterations." << std::endl;
-					std::cout << __FILE__ << ':' << __LINE__ << std::endl;
-					exit(1);
-				}
+				//if (ite_predict > 100)
+				//{
+				//	std::cout << "\n Error: class ShellNormalDirectionPrediction normal prediction not converged after 100 iterations." << std::endl;
+				//	std::cout << __FILE__ << ':' << __LINE__ << std::endl;
+				//	exit(1);
+				//}
 
 				ite_predict++;
 			}
@@ -219,16 +231,17 @@ namespace SPH
 		{
 			bool consistency_updated = false;
 			size_t ite_updated = 0;
-			while (!consistency_updated)
+			//while (!consistency_updated)
+			while (ite_updated < 1000)
 			{
 				consistency_correction_.exec();
 				consistency_updated = consistency_updated_check_.exec();
-				if (ite_updated > 100)
-				{
-					std::cout << "\n Error: class ShellNormalDirectionPrediction normal consistency not updated  after 100 iterations." << std::endl;
-					std::cout << __FILE__ << ':' << __LINE__ << std::endl;
-					exit(1);
-				}
+				//if (ite_updated > 100)
+				//{
+				//	std::cout << "\n Error: class ShellNormalDirectionPrediction normal consistency not updated  after 100 iterations." << std::endl;
+				//	std::cout << __FILE__ << ':' << __LINE__ << std::endl;
+				//	exit(1);
+				//}
 				ite_updated++;
 			}
 			std::cout << "\n Information: normal consistency updated after '" << ite_updated << "' steps." << std::endl;

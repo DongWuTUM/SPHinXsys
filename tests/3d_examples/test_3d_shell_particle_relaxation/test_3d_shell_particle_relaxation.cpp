@@ -49,11 +49,12 @@ int main(int ac, char *av[])
 	//	Creating body, materials and particles.
 	//----------------------------------------------------------------------
 	RealBody imported_model(system, makeShared<ImportedShellModel>("ImportedShellModel"));
-	imported_model.defineBodyLevelSetShape(level_set_refinement_ratio)->correctLevelSetSign()->writeLevelSet(io_environment);
+	imported_model.defineBodyLevelSetShape(level_set_refinement_ratio);
 	//here dummy linear elastic solid is use because no solid dynamics in particle relaxation
 	imported_model.defineParticlesAndMaterial<ShellParticles, SaintVenantKirchhoffSolid>(1.0, 1.0, 0.0);
 	imported_model.generateParticles<ThickSurfaceParticleGeneratorLattice>(thickness);
 	imported_model.addBodyStateForRecording<Vecd>("NormalDirection");
+	ReducedQuantityRecording<ReduceDynamics<TotalMechanicalEnergy>> write_mechanical_energy(io_environment, imported_model);
 	//----------------------------------------------------------------------
 	//	Define simple file input and outputs functions.
 	//----------------------------------------------------------------------
@@ -92,6 +93,7 @@ int main(int ac, char *av[])
 			write_imported_model_to_vtp.writeToFile(ite_p);
 		}
 		relaxation_step_inner.exec();
+		write_mechanical_energy.writeToFile(ite_p);
 		ite_p += 1;
 	}
 	shell_normal_prediction.exec();

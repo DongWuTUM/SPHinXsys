@@ -202,22 +202,29 @@ namespace SPH
 					{
 						Vecd e_ij = inner_neighborhood.e_ij_[n];
 						Real r_ij = inner_neighborhood.r_ij_[n];
-						Real dim_inv_r_ij = Dimensions / r_ij;
 						Real weight = inner_neighborhood.W_ij_[n] * inv_W0_;
 						Vecd pos_jump = getLinearVariableJump(e_ij, r_ij, pos_[index_i],
 															  transformation_matrix_[index_i].transpose() * F_[index_i] * transformation_matrix_[index_i],
 															  pos_[index_j],
 															  transformation_matrix_[index_i].transpose() * F_[index_j] * transformation_matrix_[index_i]);
-						acceleration += hourglass_control_factor_ * weight * G0_ * pos_jump * dim_inv_r_ij *
-										inner_neighborhood.dW_ijV_j_[n] * thickness_[index_i];
+						Real limiter_pos = SMIN(2.0 * pos_jump.norm() / r_ij, 1.0);
+						acceleration += hourglass_control_factor_pos_ * weight * G0_ * pos_jump * Dimensions *
+										inner_neighborhood.dW_ijV_j_[n] * limiter_pos;
 
 						Vecd pseudo_n_jump = getLinearVariableJump(e_ij, r_ij, pseudo_n_[index_i] - n0_[index_i],
 																   transformation_matrix_[index_i].transpose() * F_bending_[index_i] * transformation_matrix_[index_i],
 																   pseudo_n_[index_j] - n0_[index_j],
 																   transformation_matrix_[index_j].transpose() * F_bending_[index_j] * transformation_matrix_[index_j]);
-						Vecd rotation_jump = getRotationJump(pseudo_n_jump, transformation_matrix_[index_i]);
-						pseudo_normal_acceleration += hourglass_control_factor_ * weight * G0_ * rotation_jump * dim_inv_r_ij *
-													  inner_neighborhood.dW_ijV_j_[n] * pow(thickness_[index_i], 3);
+						Real limiter_pseudo_n = SMIN(2.0 * pseudo_n_jump.norm() / ((pseudo_n_[index_i] - n0_[index_i] 
+												- pseudo_n_[index_j] + n0_[index_j]).norm() + Eps), 1.0);
+						pseudo_normal_acceleration += hourglass_control_factor_rotation_ * weight * G0_ * pseudo_n_jump * Dimensions *
+													  inner_neighborhood.dW_ijV_j_[n] * pow(thickness_[index_i], 2) * limiter_pseudo_n;
+						//if (GlobalStaticVariables::physical_time_ > 1.5)
+						//{
+						//	Real try1 = pos_jump.norm() / r_ij;
+						//	Real try2 = pseudo_n_jump.norm() / ((pseudo_n_[index_i] - n0_[index_i] - pseudo_n_[index_j] + n0_[index_j]).norm() + Eps);
+						//	std::cout << "try1: " << try1 << " try2: " << try2 << std::endl;
+						//}
 					}
 
 					acceleration += (global_stress_i + global_stress_[index_j]) * inner_neighborhood.dW_ijV_j_[n] * inner_neighborhood.e_ij_[n];
@@ -239,7 +246,7 @@ namespace SPH
 			StdLargeVec<Matd> &global_stress_, &global_moment_, &mid_surface_cauchy_stress_, &numerical_damping_scaling_;
 			StdLargeVec<Vecd> &global_shear_stress_, &n_;
 			Real rho0_, inv_rho0_;
-			Real smoothing_length_, E0_, G0_, nu_, hourglass_control_factor_;
+			Real smoothing_length_, E0_, G0_, nu_, hourglass_control_factor_pos_, hourglass_control_factor_rotation_;
 			bool hourglass_control_;
 			const Real inv_W0_ = 1.0 / sph_body_.sph_adaptation_->getKernel()->W0(ZeroVecd);
 			const Real shear_correction_factor_ = 5.0 / 6.0;

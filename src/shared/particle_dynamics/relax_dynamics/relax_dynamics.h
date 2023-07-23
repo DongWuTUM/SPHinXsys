@@ -129,6 +129,7 @@ namespace SPH
 		protected:
 			SPHAdaptation *sph_adaptation_;
 			StdLargeVec<Vecd> &pos_, &acc_;
+			StdLargeVec<Vecd> &vel_;
 
 		public:
 			explicit UpdateParticlePosition(SPHBody &sph_body);
@@ -394,6 +395,12 @@ namespace SPH
 						}
 					}
 					mutex_modify_neighbor_.unlock();
+
+					//for (size_t i = 0; i < particles_->total_real_particles_; i++)
+					//{
+					//	updated_indicator_[i] = 0;
+					//}
+					//updated_indicator_[particles_->total_real_particles_ / 2] = 1;
 				};
 
 			protected:

@@ -17,7 +17,7 @@ Real PL = 10.0;									  /** Length of the square plate. */
 Real PH = 10.0;									  /** Width of the square plate. */
 Real PT = 1.0;									  /** Thickness of the square plate. */
 Vec3d n_0 = Vec3d(0.0, 0.0, 1.0);				  /** Pseudo-normal. */
-int particle_number = 40;						  /** Particle number in the direction of the length */
+int particle_number = 20;						  /** Particle number in the direction of the length */
 Real resolution_ref = PL / (Real)particle_number; /** Initial reference particle spacing. */
 int BWD = 1;									  /** Width of the boundary layer measured by number of particles. */
 Real BW = resolution_ref * (Real)BWD;			  /** Boundary width, determined by specific layer of boundary particles. */
@@ -25,7 +25,7 @@ Real BW = resolution_ref * (Real)BWD;			  /** Boundary width, determined by spec
 BoundingBox system_domain_bounds(Vec3d(-BW, -BW, -0.5 * resolution_ref),
 								 Vec3d(PL + BW, PH + BW, 0.5 * resolution_ref));
 // Observer location
-StdVec<Vecd> observation_location = {Vecd(0.5 * PL, 0.5 * PH, 0.0)};
+StdVec<Vecd> observation_location = {Vecd(0.5 * PL, 0.5 * PH, 0.0), Vecd(0.0, 0.0, 0.0)};
 
 /** For material properties of the solid. */
 Real rho0_s = 1.0;				   /** Normalized density. */
@@ -33,7 +33,7 @@ Real Youngs_modulus = 1.3024653e6; /** Normalized Youngs Modulus. */
 Real poisson = 0.3;				   /** Poisson ratio. */
 Real physical_viscosity = 200.0;   /** physical damping, here we choose the same value as numerical viscosity. */
 
-Real q = 100.0 * Youngs_modulus * 1.0e-4; /** Total distributed load. */
+Real q = 200.0 * Youngs_modulus * 1.0e-4; /** Total distributed load. */
 Real time_to_full_external_force = 0.1;
 
 Real gravitational_acceleration = 0.009646;
@@ -200,7 +200,7 @@ int main(int ac, char *av[])
 	/** Setup physical parameters. */
 	int ite = 0;
 	Real end_time = 0.8;
-	Real output_period = end_time / 100.0;
+	Real output_period = end_time / 20.0;
 	Real dt = 0.0;
 	/** Statistics for computing time. */
 	TickCount t1 = TickCount::now();

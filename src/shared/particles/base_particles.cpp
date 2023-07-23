@@ -129,22 +129,26 @@ namespace SPH
 	{
 		output_file << " VARIABLES = \"x\",\"y\",\"z\",\"ID\"";
 
-		for (size_t l = 0; l != variables_to_write_[3].size(); ++l)
+		constexpr int type_index_int = DataTypeIndex<int>::value;
+		for (size_t l = 0; l != variables_to_write_[type_index_int].size(); ++l)
 		{
-			std::string variable_name = variables_to_write_[3][l].first;
+			std::string variable_name = variables_to_write_[type_index_int][l].first;
 			output_file << ",\"" << variable_name << "\"";
 		};
 
-		for (size_t l = 0; l != variables_to_write_[1].size(); ++l)
+		constexpr int type_index_Vecd = DataTypeIndex<Vecd>::value;
+		for (size_t l = 0; l != variables_to_write_[type_index_Vecd].size(); ++l)
 		{
-			std::string variable_name = variables_to_write_[1][l].first;
+			std::string variable_name = variables_to_write_[type_index_Vecd][l].first;
 			output_file << ",\"" << variable_name << "_x\""
 						<< ",\"" << variable_name << "_y\""
 						<< ",\"" << variable_name << "_z\"";
 		};
-		for (size_t l = 0; l != variables_to_write_[0].size(); ++l)
+
+		constexpr int type_index_Real = DataTypeIndex<Real>::value;
+		for (size_t l = 0; l != variables_to_write_[type_index_Real].size(); ++l)
 		{
-			std::string variable_name = variables_to_write_[0][l].first;
+			std::string variable_name = variables_to_write_[type_index_Real][l].first;
 			output_file << ",\"" << variable_name << "\"";
 		};
 	}
