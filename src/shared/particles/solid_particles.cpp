@@ -328,8 +328,7 @@ void ShellParticles::initializeOtherVariables()
     for (size_t i = 0; i != real_particles_bound_; ++i)
     {
         transformation_matrix_[i] = getTransformationMatrix(n_[i]);
-        numerical_damping_scaling_[i](Dimensions - 1, Dimensions - 1) =
-            thickness_[i] < sph_body_.sph_adaptation_->ReferenceSmoothingLength() ? thickness_[i] : sph_body_.sph_adaptation_->ReferenceSmoothingLength();
+        numerical_damping_scaling_[i](Dimensions - 1, Dimensions - 1) = 0.0;
     }
 }
 
