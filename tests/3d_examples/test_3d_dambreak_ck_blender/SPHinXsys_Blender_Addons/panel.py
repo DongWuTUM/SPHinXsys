@@ -10,79 +10,57 @@ class SPHinXsys_PT_Panel(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
 
-        label = layout.label(text = 'This is a label')
-        #box = layout.box()
-        #box.operator('object.cursor_array', text = "Save Object")
-        #split = layout.split(factor=0.8)
-        #split.operator('object.cursor_array', text = "Save Object")
         col = layout.column()
-        col.operator('mesh.clearstlfiles', text = "Clear STL Files")
-        col.operator('mesh.saveselectedmeshes2file', text = "Save Selected Meshes")
-        col.operator('mesh.saveallmeshes2file', text = "Save All Meshes")
-        col.operator('sphinxsys.runcase', text = 'Run Case')
+        col.operator('mesh.clearstlfiles', text="Clear STL Files")
+        col.operator('mesh.saveselectedmeshes2file', text="Save Selected Meshes")
+        col.operator('mesh.saveallmeshes2file', text="Save All Meshes")
+        # Modified Run Case button to match new Operator ID
+        col.operator('sphinxsys.run_case', text='Run Case', icon='PLAY')
+        # Add Show Color, Refresh Color and Setup Particle Viz buttons
+        col.operator('sphinxsys.apply_color_material', text='Show Color', icon='COLOR')
+        col.operator('sphinxsys.update_color', text='Refresh Color', icon='FILE_REFRESH')
+        col.operator('sphinxsys.setup_particle_viz', text='Setup Particle Viz', icon='PARTICLES')
 
         col = layout.column()
-        # for prop in dir(context.scene.m_SPHinXsysGlobalSettings):
-        #     if prop.startswith('m_'):
-        #         col.prop(context.scene.m_SPHinXsysGlobalSettings, prop)
-        col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_WaterBlockFilePath')
-        col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_RigidBlockFilePath')
-        col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_ElasticBlockFilePath')
+        gs = context.scene.m_SPHinXsysGlobalSettings
+        col.prop(gs, 'm_WaterBlockFilePath')
+        col.prop(gs, 'm_RigidBlockFilePath')
+        col.prop(gs, 'm_ElasticBlockFilePath')
+
+        col.prop(gs, 'm_ColorField')
 
         split = layout.split(factor=0.5)
-        split.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_SimDomainLower')
-        split.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_SimDomainUpper')
+        split.prop(gs, 'm_SimDomainLower')
+        split.prop(gs, 'm_SimDomainUpper')
 
-        col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_Gravity')
-        col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_EndTime')
+        col.prop(gs, 'm_Gravity')
+        col.prop(gs, 'm_EndTime')
 
-        col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_ParticleReferenceSpacing')
-        col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_Rho0f')
-        col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_URef')
-        # col.prop(context.scene.m_SPHinXsysGlobalSettings, 'm_Cf')
-        
+        col.prop(gs, 'm_ParticleReferenceSpacing')
+        col.prop(gs, 'm_Rho0f')
+        col.prop(gs, 'm_URef')
 
-        meshes = bpy.data.meshes
-        for item in meshes:
+        # Display SPHinXsys media settings for each mesh object
+        for mesh in bpy.data.meshes:
             box = layout.box()
-            box.scale_x = 1
-            box.scale_y = 1
             box.use_property_split = True
             box.use_property_decorate = False
-            box.label(text = item.name)
+            box.label(text=mesh.name)
 
-            box.prop(item.m_SPHinXsysSettings, 'm_TypeofMedia', text = 'Media Type')
-            box.prop(item.m_SPHinXsysSettings, 'm_Export', text = 'Exported?')
+            box.prop(mesh.m_SPHinXsysSettings, 'm_TypeofMedia', text='Media Type')
+            box.prop(mesh.m_SPHinXsysSettings, 'm_Export', text='Exported?')
 
-            if(item.m_SPHinXsysSettings.m_TypeofMedia == 'Fluid'):
-                for prop in dir(item.m_SPHinXsysSettings):
+            if mesh.m_SPHinXsysSettings.m_TypeofMedia == 'Fluid':
+                for prop in dir(mesh.m_SPHinXsysSettings):
                     if prop.startswith('m_Fluid'):
-                        box.prop(item.m_SPHinXsysSettings, prop)
-                # box.prop(item.m_SPHinXsysSettings, 'm_FluidDensity', text = 'Fluid Density')
-                # box.prop(item.m_SPHinXsysSettings, 'm_FluidCharacteristicVelocity', text = 'Fluid Characteristic Velocity')
-                # box.prop(item.m_SPHinXsysSettings, 'm_FluidSpeedofSound', text = 'Fluid Speed of Sound')
-                # box.prop(item.m_SPHinXsysSettings, 'm_FluidReynoldsNumber', text = 'Fluid Reynolds Number')
-                # box.prop(item.m_SPHinXsysSettings, 'm_FluidDynamicsViscosity', text = 'Fluid Dynamics Viscosity')
+                        box.prop(mesh.m_SPHinXsysSettings, prop)
             else:
-                for prop in dir(item.m_SPHinXsysSettings):
+                for prop in dir(mesh.m_SPHinXsysSettings):
                     if prop.startswith('m_Solid'):
-                        box.prop(item.m_SPHinXsysSettings, prop)
-                # box.prop(item.m_SPHinXsysSettings, 'm_SolidReferenceDensity', text = 'Solid Reference Density')
-                # box.prop(item.m_SPHinXsysSettings, 'm_SolidYoungsModulus', text = 'Solid Youngs Modulus')
-                # box.prop(item.m_SPHinXsysSettings, 'm_SolidPoissonRatio', text = 'Solid Poisson Ratio')
+                        box.prop(mesh.m_SPHinXsysSettings, prop)
 
-            # col.label(text = item.name)
-            # col.prop(item.m_SPHinXsysSettings, 'm_TypeofMedia', text = 'Media Type')
-            # col.prop(item.m_SPHinXsysSettings, 'm_Export', text = 'Exported?')
+def register():
+    bpy.utils.register_class(SPHinXsys_PT_Panel)
 
-            # if(item.m_SPHinXsysSettings.m_TypeofMedia == 'Fluid'):
-            #     col.prop(item.m_SPHinXsysSettings, 'm_FluidDensity', text = 'Fluid Density')
-            #     col.prop(item.m_SPHinXsysSettings, 'm_FluidCharacteristicVelocity', text = 'Fluid Characteristic Velocity')
-            #     col.prop(item.m_SPHinXsysSettings, 'm_FluidSpeedofSound', text = 'Fluid Speed of Sound')
-            #     col.prop(item.m_SPHinXsysSettings, 'm_FluidReynoldsNumber', text = 'Fluid Reynolds Number')
-            #     col.prop(item.m_SPHinXsysSettings, 'm_FluidDynamicsViscosity', text = 'Fluid Dynamics Viscosity')
-            # else:
-            #     col.prop(item.m_SPHinXsysSettings, 'm_SolidReferenceDensity', text = 'Solid Reference Density')
-            #     col.prop(item.m_SPHinXsysSettings, 'm_SolidYoungsModulus', text = 'Solid Youngs Modulus')
-            #     col.prop(item.m_SPHinXsysSettings, 'm_SolidPoissonRatio', text = 'Solid Poisson Ratio')
-            
+def unregister():
+    bpy.utils.unregister_class(SPHinXsys_PT_Panel)
