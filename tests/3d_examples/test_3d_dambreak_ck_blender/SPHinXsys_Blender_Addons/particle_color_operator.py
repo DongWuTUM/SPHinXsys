@@ -14,7 +14,7 @@ class SPH_OT_SetupParticleVisualization(bpy.types.Operator):
     def execute(self, context):
         # 1. Create or get sphere prototype
         if 'ParticleProto' not in bpy.data.objects:
-            bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3, radius=1)
+            bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=1)
             proto = bpy.context.active_object
             proto.name = 'ParticleProto'
             for p in proto.data.polygons:

@@ -193,5 +193,5 @@ class SPHinXsys_OT_runCase(bpy.types.Operator):
         except Exception:
             pass
 
-        self.report({'INFO'}, "Setup complete, playing animation…")
+        self.report({'INFO'}, "Setup complete, playing animation")
         return {'FINISHED'}
