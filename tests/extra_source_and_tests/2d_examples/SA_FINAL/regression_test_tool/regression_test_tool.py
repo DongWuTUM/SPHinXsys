@@ -11,7 +11,7 @@ case name: SA_FINAL
 """
 
 case_name = "SA_FINAL"
-body_name = "write_centerline_velocity_axial"
+body_name = "VelocityAxialObserver"
 parameter_name = "Velocity"
 
 number_of_run_times = 0

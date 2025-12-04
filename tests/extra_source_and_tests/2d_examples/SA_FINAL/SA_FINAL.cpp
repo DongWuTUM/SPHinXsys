@@ -496,7 +496,6 @@ int main(int ac, char *av[])
 
     sph_system.setRunParticleRelaxation(false);
     sph_system.setReloadParticles(true);
-
     sph_system.setGenerateRegressionData(true);
 
     //sph_system.setRestartStep(2000);
@@ -660,7 +659,8 @@ int main(int ac, char *av[])
         velocity_observer_contact_axial.updateConfiguration();
     }
     //----------------------------------------------------------------------
-    //	Setup for time-stepping control
+    //	Setup for time-stepping control    // sph_system.setRunParticleRelaxation(true);
+    // sph_system.setReloadParticles(false);
     //----------------------------------------------------------------------
     //Real &physical_time = *sph_system.getSystemVariableDataByName<Real>("PhysicalTime");
     size_t number_of_iterations = sph_system.RestartStep();
