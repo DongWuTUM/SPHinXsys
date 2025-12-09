@@ -7,10 +7,10 @@ sys.path.append(path)
 from regression_test_base_tool import SphinxsysRegressionTest
 
 """
-case name: SA_FINAL
+case name: test_2d_vessel_stenosis_womersley_sycl
 """
 
-case_name = "SA_FINAL"
+case_name = "test_2d_vessel_stenosis_womersley_sycl"
 body_name = "VelocityAxialObserver"
 parameter_name = "Velocity"
 
