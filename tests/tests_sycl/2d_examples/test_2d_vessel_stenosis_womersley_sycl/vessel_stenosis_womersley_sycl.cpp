@@ -5,7 +5,7 @@
  * @author 	Minhui Zhou, Dong Wu, Xiangyu Hu
  */
 
-#include "sphinxsys.h" // SPHinXsys Library.
+#include "sphinxsys.h" 
 using namespace SPH;
 // 0.3
 std::string womersley_velocity_profile_csv = "./input/womersley_velocity_profile_0.3.csv";
@@ -444,7 +444,7 @@ int main(int ac, char *av[])
 
     sph_system.setRunParticleRelaxation(false);
     sph_system.setReloadParticles(true);
-    sph_system.setGenerateRegressionData(true);
+    sph_system.setGenerateRegressionData(false);
 
     sph_system.setRestartStep(14000); 
 
@@ -795,7 +795,7 @@ int main(int ac, char *av[])
     {
         write_centerline_velocity.generateDataBase(0.05);
     }
-    else if (sph_system.RestartStep() == 0)
+    else /*if (sph_system.RestartStep() == 0)*/
     {
         write_centerline_velocity.testResult();
     }
