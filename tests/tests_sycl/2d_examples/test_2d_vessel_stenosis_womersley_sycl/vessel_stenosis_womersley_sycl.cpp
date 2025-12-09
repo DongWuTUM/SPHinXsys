@@ -28,7 +28,7 @@ Real resolution_ref = DH / 12.0; // ratio = 2, like 12 24 48
 Real BW = resolution_ref * 4.0; 
 Real max_narrowing = 0.3; // 0.3 0.5 0.7
 Real interpolationNum = 100;
-BoundingBox system_domain_bounds(Vec2d(-DL1 - 0.5 * DL2 - BW, -0.5 * DH - BW), Vec2d(0.5 * DL2 + DL3, 0.5 * DH + BW));
+BoundingBoxd system_domain_bounds(Vec2d(-DL1 - 0.5 * DL2 - BW, -0.5 * DH - BW), Vec2d(0.5 * DL2 + DL3, 0.5 * DH + BW));
 //----------------------------------------------------------------------
 //	Observation points
 //----------------------------------------------------------------------
