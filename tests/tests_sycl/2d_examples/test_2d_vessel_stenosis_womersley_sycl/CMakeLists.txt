@@ -33,4 +33,4 @@ add_test(NAME ${PROJECT_NAME} COMMAND ${PROJECT_NAME}  --reload=true --state_rec
 set_tests_properties(${PROJECT_NAME} PROPERTIES LABELS "pulsatile inlet, pressure outlet")
 set_tests_properties(${PROJECT_NAME} PROPERTIES DEPENDS "${PROJECT_NAME}_particle_relaxation")
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${EXECUTABLE_OUTPUT_PATH}")
-target_link_libraries(${PROJECT_NAME} extra_sources_2d)
+target_link_libraries(${PROJECT_NAME} sphinxsys_2d)
