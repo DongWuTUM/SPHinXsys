@@ -442,9 +442,9 @@ int main(int ac, char *av[])
     // sph_system.setRunParticleRelaxation(true);
     // sph_system.setReloadParticles(false);
 
-    sph_system.setRunParticleRelaxation(false);
-    sph_system.setReloadParticles(true);
-    sph_system.setGenerateRegressionData(false);
+    // sph_system.setRunParticleRelaxation(false);
+    // sph_system.setReloadParticles(true);
+    // sph_system.setGenerateRegressionData(false);
 
     sph_system.setRestartStep(14000); 
 
