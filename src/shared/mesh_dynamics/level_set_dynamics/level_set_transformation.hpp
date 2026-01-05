@@ -44,7 +44,7 @@ UpdateKernelIntegrals::UpdateKernel::
       data_spacing_(encloser.index_handler_.DataSpacing()),
       data_cell_volume_(math::pow(data_spacing_, Dimensions)),
       cell_neighborhood_(encloser.dv_cell_neighborhood_.DelegatedData(ex_policy)),
-      cutoff_radius_(encloser.neighbor_method_.CutOffRadius()),
+      cutoff_radius_(kernel_.CutOffRadius()),
       bounding_box_(BoundingBoxi(Arrayi::Constant(
           static_cast<int>(std::ceil((cutoff_radius_ - Eps) / data_spacing_))))) {}
 //=================================================================================================//
@@ -86,7 +86,7 @@ DataType UpdateKernelIntegrals::UpdateKernel::
             bounding_box_.lower_, bounding_box_.upper_ + Arrayi::Ones(),
             [&](const Arrayi &search_index)
             {
-                DataPackagePair neighbor_meta = GeneralNeighbourIndexShift<pkg_size>(
+                PackageDataPair neighbor_meta = GeneralNeighbourIndexShift<pkg_size>(
                     package_index, cell_neighborhood_, grid_index + search_index);
                 Real phi_neighbor = phi_[neighbor_meta.first](neighbor_meta.second);
                 if (phi_neighbor > -data_spacing_)
